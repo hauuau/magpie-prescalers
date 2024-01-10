@@ -410,7 +410,7 @@ for (int id = int(gl_LocalInvocationIndex); id < rect.x * rect.y; id += int(gl_W
         self.function_header_compute()
 
         GLSL("ivec2 group_begin = ivec2(gl_WorkGroupID) * ivec2(gl_WorkGroupSize);")
-        GLSL("ivec2 group_end = group_begin + ivec2(gl_WorkGroupSize) - ivec2(1, 1);")
+        GLSL("ivec2 group_end = group_begin + ivec2(gl_WorkGroupSize);")
         GLSL("ivec2 rectl = ivec2(floor(HOOKED_size * HOOKED_map(group_begin) - 0.5)) - %d;" % (self.radius - 1))
         GLSL("ivec2 rectr = ivec2(floor(HOOKED_size * HOOKED_map(group_end) - 0.5)) + %d;" % self.radius)
         GLSL("ivec2 rect = rectr - rectl + 1;")
