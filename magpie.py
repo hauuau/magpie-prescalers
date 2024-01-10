@@ -259,9 +259,7 @@ static const float3x3 yuv2rgb = {
             tex_name = self.header["OUT"]
             tex = self.out_textures[tex_name]
             sample_format = tex["sample_format"]
-            swizzle = format_map[sample_format][1]
-            cast = format_map[sample_format][2]
-            pack_values = format_map[sample_format][3]
+            _, swizzle, cast, pack_values = format_map[sample_format]
 
             GLSL("#define imageStore(out_image, pos, val) imageStoreOverride(pos, val%s)" % swizzle)
             GLSL("void imageStoreOverride(uint2 pos, %s value) {" % sample_format)
@@ -269,9 +267,9 @@ static const float3x3 yuv2rgb = {
             GLSL("}")
         elif profile == Profile.luma:
             # out_image is not used on magpie
-            GLSL("#define imageStore(out_image, pos, val) imageStoreOverride(pos, val.xyz)")
+            GLSL("#define imageStore(out_image, pos, val) imageStoreOverride(pos, val.x)")
             GLSL("""
-void imageStoreOverride(uint2 pos, float3 value) {
+void imageStoreOverride(uint2 pos, float value) {
     float2 UV = mul(rgb2uv, INPUT.SampleLevel(sam_INPUT_LINEAR, HOOKED_map(pos), 0).rgb);
     WriteToOutput(pos, mul(yuv2rgb, float3(value.x, UV)));
 }""")

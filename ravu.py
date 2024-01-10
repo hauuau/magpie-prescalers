@@ -633,7 +633,7 @@ class Magpie_RAVU(MagpieBase, RAVU, MagpieHook):
             self.add_mappings(
                 sample_type="float",
                 sample_zero="0.0",
-                hook_return_value="vec3(res, 0.0, 0.0)",
+                hook_return_value="res",
                 comps_swizzle = ".x")
         elif self.profile == Profile.rgb:
             self.add_mappings(

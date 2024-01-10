@@ -370,7 +370,7 @@ class Magpie_RAVU_3x(MagpieBase, RAVU_3x, MagpieHook):
                 sample4_type="vec4",
                 sample4_zero="vec4(0.0, 0.0, 0.0, 0.0)",
                 comps_swizzle = ".x")
-            self.wrap_sample = lambda res: "vec3(%s, 0.0, 0.0)" % res
+            self.wrap_sample = lambda res: "%s" % res
             self.outer_product = lambda x, y: "%s * %s" % (x, y)
         elif self.profile == Profile.rgb:
             self.add_mappings(
