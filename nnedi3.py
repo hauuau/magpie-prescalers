@@ -149,10 +149,6 @@ for (int id = int(gl_LocalInvocationIndex); id < %d; id += int(gl_WorkGroupSize.
         # not needed for mpv
         pass
 
-    def save_format(self, value):
-        # not needed for mpv
-        pass
-
     def generate(self, step, use_gather=False, use_compute=False, compute_shader_block_size=None):
         self.load_weights()
         self.reset()
