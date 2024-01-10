@@ -388,6 +388,7 @@ class Magpie_RAVU_Lite(MagpieBase, RAVU_Lite, MagpieHook):
 
         shader  = gen.magpie_header()
         shader += gen.tex_headers("INPUT", filter="POINT")
+        shader += gen.tex_headers("OUTPUT", filter="POINT")
         shader += gen.sampler_headers("INPUT_LINEAR", filter="LINEAR")
         shader += gen.generate_tex(float_format, overwrite=args.overwrite)
         shader += gen.hlsl_defines()
@@ -427,7 +428,8 @@ for (int id = int(gl_LocalInvocationIndex); id < %d; id += int(gl_WorkGroupSize.
         GLSL("""
 #if CURRENT_PASS == LAST_PASS
 uint2 destPos = blockStart + threadId.xy * 2;
-if (!CheckViewport(destPos)) {
+uint2 outputSize = GetOutputSize();
+if (destPos.x >= outputSize.x || destPos.y >= outputSize.y) {
     return;
 }
 #endif

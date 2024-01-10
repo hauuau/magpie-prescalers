@@ -60,9 +60,7 @@ class MagpieBase(userhook.UserHook):
         headers += [""]
         headers += ["""
 //!MAGPIE EFFECT
-//!VERSION 3
-//$output_width
-//$output_height
+//!VERSION 4
 """]
         headers += [""]
         return "\n".join(headers) + "\n"
@@ -86,8 +84,17 @@ class MagpieBase(userhook.UserHook):
         headers  = ["//!TEXTURE"]
         headers += ["//!SOURCE %s"  % filename] if filename else []
         headers += ["//!FORMAT %s"  % format  ] if format   else []
-        headers += ["//!WIDTH  %s"  % width   ] if width    else []
-        headers += ["//!HEIGHT %s"  % height  ] if height   else []
+
+        # OUTPUT is a special texture on MagpieFX v4.
+        # Its size should be set to the size of the last pass
+        # If it won't be set then effect supports arbitrary resizing
+        if name == "OUTPUT":
+            headers += ["//$output_width"]
+            headers += ["//$output_height"]
+        else:
+            headers += ["//!WIDTH  %s"  % width   ] if width    else []
+            headers += ["//!HEIGHT %s"  % height  ] if height   else []
+
         headers += ["Texture2D %s;" % name    ]
         headers += [""]
         headers += [self.sampler_headers(name, filter)]
@@ -200,6 +207,7 @@ $temp_textures
             self.header[name] = None
 
         self.header["IN"] = list(self.hook)
+        self.header["OUT"] = "OUTPUT"
 
     def bind_tex(self, tex):
         self.header["IN"].append(tex)
@@ -255,7 +263,7 @@ static const float3x3 yuv2rgb = {
         else:
             GLSL("#define GET_SAMPLE(x) x")
 
-        if self.header["OUT"]:
+        if self.header["OUT"] != "OUTPUT":
             tex_name = self.header["OUT"]
             tex = self.out_textures[tex_name]
             sample_format = tex["sample_format"]
@@ -271,13 +279,13 @@ static const float3x3 yuv2rgb = {
             GLSL("""
 void imageStoreOverride(uint2 pos, float value) {
     float2 UV = mul(rgb2uv, INPUT.SampleLevel(sam_INPUT_LINEAR, HOOKED_map(pos), 0).rgb);
-    WriteToOutput(pos, mul(yuv2rgb, float3(value.x, UV)));
+    OUTPUT[pos] = float4(mul(yuv2rgb, float3(value.x, UV)), 1.0);
 }""")
         else:
-            GLSL("#define imageStore(out_image, pos, val) imageStoreOverride(pos, val.xyz)")
+            GLSL("#define imageStore(out_image, pos, val) imageStoreOverride(pos, val)")
             GLSL("""
-void imageStoreOverride(uint2 pos, float3 value) {
-    WriteToOutput(pos, value);
+void imageStoreOverride(uint2 pos, float4 value) {
+    OUTPUT[pos] = value;
 }""")
 
     def lookup_texture(self, tex):
@@ -330,8 +338,8 @@ void imageStoreOverride(uint2 pos, float3 value) {
             "last_pass": self.compute_pass
         }
         if self.output_width and self.output_height:
-            mappings["output_width"]  = "!OUTPUT_WIDTH  %s" % self.output_width
-            mappings["output_height"] = "!OUTPUT_HEIGHT %s" % self.output_height
+            mappings["output_width"]  = "!WIDTH  %s" % self.output_width
+            mappings["output_height"] = "!HEIGHT %s" % self.output_height
 
         temp_textures = []
         for tex_name, tex in self.out_textures.items():

@@ -342,6 +342,7 @@ class Magpie_RAVU_3x(MagpieBase, RAVU_3x, MagpieHook):
 
         shader  = gen.magpie_header()
         shader += gen.tex_headers("INPUT", filter="POINT")
+        shader += gen.tex_headers("OUTPUT", filter="POINT")
         shader += gen.sampler_headers("INPUT_LINEAR", filter="LINEAR")
         shader += gen.generate_tex(float_format, overwrite=args.overwrite)
         shader += gen.hlsl_defines()
@@ -379,7 +380,7 @@ class Magpie_RAVU_3x(MagpieBase, RAVU_3x, MagpieHook):
                 sample4_type="mat4x3",
                 sample4_zero="0.0",
                 comps_swizzle = ".xyz")
-            self.wrap_sample = lambda res: "%s" % res
+            self.wrap_sample = lambda res: "vec4(%s, 1.0)" % res
             self.outer_product = lambda x, y: "outerProduct(%s, %s)" % (x, y)
             GLSL("static const vec3 color_primary = vec3(0.2126, 0.7152, 0.0722);")
             GLSL("""// HLSL doesn't have outerProduct
@@ -412,7 +413,8 @@ for (int id = int(gl_LocalInvocationIndex); id < %d; id += int(gl_WorkGroupSize.
         GLSL("""
 #if CURRENT_PASS == LAST_PASS
 uint2 destPos = blockStart + threadId.xy * 3;
-if (!CheckViewport(destPos)) {
+uint2 outputSize = GetOutputSize();
+if (destPos.x >= outputSize.x || destPos.y >= outputSize.y) {
     return;
 }
 #endif

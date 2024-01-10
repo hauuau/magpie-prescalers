@@ -482,6 +482,7 @@ class Magpie_RAVU_Zoom(MagpieBase, RAVU_Zoom, MagpieHook):
 
         shader  = gen.magpie_header()
         shader += gen.tex_headers("INPUT", filter="POINT")
+        shader += gen.tex_headers("OUTPUT", filter="POINT")
         shader += gen.sampler_headers("INPUT_LINEAR", filter="LINEAR")
         shader += gen.generate_tex(float_format, overwrite=args.overwrite)
         if anti_ringing:
@@ -523,7 +524,7 @@ class Magpie_RAVU_Zoom(MagpieBase, RAVU_Zoom, MagpieHook):
                 sample_type="vec3",
                 sample_zero="vec3(0.0, 0.0, 0.0)",
                 sample4_type="mat4x3",
-                hook_return_value="res",
+                hook_return_value="vec4(res, 1.0)",
                 comps_swizzle = ".xyz")
             # Assumes Rec. 709
             GLSL("static const vec3 color_primary = vec3(0.2126, 0.7152, 0.0722);")
@@ -545,7 +546,8 @@ for (int id = int(gl_LocalInvocationIndex); id < rect.x * rect.y; id += int(gl_W
         GLSL("""
 #if CURRENT_PASS == LAST_PASS
 uint2 destPos = blockStart + threadId.xy;
-if (!CheckViewport(destPos)) {
+uint2 outputSize = GetOutputSize();
+if (destPos.x >= outputSize.x || destPos.y >= outputSize.y) {
     return;
 }
 #endif

@@ -606,6 +606,7 @@ class Magpie_RAVU(MagpieBase, RAVU, MagpieHook):
 
         shader  = gen.magpie_header()
         shader += gen.tex_headers("INPUT", filter="POINT")
+        shader += gen.tex_headers("OUTPUT", filter="POINT")
         shader += gen.sampler_headers("INPUT_LINEAR", filter="LINEAR")
         shader += gen.generate_tex(float_format, overwrite=args.overwrite)
         shader += gen.hlsl_defines()
@@ -639,7 +640,7 @@ class Magpie_RAVU(MagpieBase, RAVU, MagpieHook):
             self.add_mappings(
                 sample_type="vec3",
                 sample_zero="vec3(0.0, 0.0, 0.0)",
-                hook_return_value="res",
+                hook_return_value="vec4(res, 1.0)",
                 comps_swizzle = ".xyz")
             GLSL("static const vec3 color_primary = vec3(0.2126, 0.7152, 0.0722);")
         else:
@@ -670,7 +671,8 @@ for (int id = int(gl_LocalInvocationIndex); id < %d; id += int(gl_WorkGroupSize.
         GLSL("""
 #if CURRENT_PASS == LAST_PASS
 uint2 destPos = blockStart + threadId.xy * 2;
-if (!CheckViewport(destPos)) {
+uint2 outputSize = GetOutputSize();
+if (destPos.x >= outputSize.x || destPos.y >= outputSize.y) {
     return;
 }
 #endif
