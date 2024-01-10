@@ -298,21 +298,14 @@ void imageStoreOverride(uint2 pos, float3 value) {
             height = self.lookup_texture(tex)["height"]
             sample_format = self.lookup_texture(tex).get("sample_format", "vec4")
             swizzle = format_map[sample_format][1]
-            # TODO: investigate
-            # usage of these defines instead of static const seems to cause some kind of compiler bug
-            # that bug manifests itself as wrong pos math in ravu-zoom
             if tex == "INPUT":
                 GLSL("#define {0}_tex(pos) GET_SAMPLE(vec4(texture({0}, pos)))".format(tex))
-                #GLSL("#define {0}_size float2(GetInputSize())".format(tex))
-                #GLSL("#define {0}_pt float2(GetInputPt())".format(tex))
                 GLSL("static const float2 {0}_size = float2(GetInputSize());".format(tex))
                 GLSL("static const float2 {0}_pt = float2(GetInputPt());".format(tex))
             elif width and height:
                 GLSL("#define {0}_tex(pos) ({1}(texture({0}, pos){2}))".format(tex, sample_format, swizzle))
                 width = width.replace("INPUT_WIDTH", "GetInputSize().x").replace("INPUT_HEIGHT", "GetInputSize().y")
                 height = height.replace("INPUT_WIDTH", "GetInputSize().x").replace("INPUT_HEIGHT", "GetInputSize().y")
-                #GLSL("#define {0}_size float2({1}, {2})".format(tex, width, height))
-                #GLSL("#define {0}_pt float2(1/({0}_size.x), 1/({0}_size.y))".format(tex))
                 GLSL("static const float2 {0}_size = float2({1}, {2});".format(tex, width, height))
                 GLSL("static const float2 {0}_pt = float2(1/({0}_size.x), 1/({0}_size.y));".format(tex))
             else:
