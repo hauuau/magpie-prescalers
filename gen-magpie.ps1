@@ -31,7 +31,7 @@ function gen_nnedi3 {
 
     foreach($nns in @(16, 32, 64, 128, 256)) {
         foreach($win in @('8x4', '8x6')) {
-            $file_name = "nnedi3-nns$nns-win$win.hlsl"
+            $file_name = "NNEDI3_nns${nns}_win${win}.hlsl"
             python.exe "$DIR\nnedi3.py" --nns "$nns" --win "$win" --use-compute-shader $use_magpie | Out-File -Encoding ASCII "$file_name"
             if ($ClangFormat) {
                 clang-format.exe --style="file:$DIR\.clang-format" -i "$file_name"
@@ -50,12 +50,12 @@ function gen_ravu {
     }
 
     foreach($target in @('luma', 'rgb')) {
-        $suffix = "-$target"
+        $suffix = "_$target".ToUpper()
         if ($target -eq "luma") {
             $suffix = ""
         }
         foreach($radius in @(2, 3, 4)) {
-            $file_name = "ravu-r$radius$suffix.hlsl"
+            $file_name = "RAVU_R$radius$suffix.hlsl"
             $weights_file = "$DIR\weights\ravu_weights-r$radius.py"
             python.exe "$DIR\ravu.py" --target "$target" --weights-file "$weights_file" --float-format "$float_format" --use-compute-shader $use_magpie $magpie_options | Out-File -Encoding ASCII "$file_name"
             if ($ClangFormat) {
@@ -65,8 +65,8 @@ function gen_ravu {
     }
 
     foreach($radius in @(2, 3, 4)) {
-        $file_name = "ravu-lite-r$radius.hlsl"
-        $file_name_ar = "ravu-lite-ar-r$radius.hlsl"
+        $file_name = "RAVU_Lite_R$radius.hlsl"
+        $file_name_ar = "RAVU_Lite_AR_R$radius.hlsl"
         $weights_file = "$DIR\weights\ravu-lite_weights-r$radius.py"
         python.exe "$DIR\ravu-lite.py" --weights-file "$weights_file" --float-format "$float_format" --use-compute-shader  $use_magpie $magpie_options | Out-File -Encoding ASCII "$file_name"
         python.exe "$DIR\ravu-lite.py" --weights-file "$weights_file" --float-format "$float_format" --use-compute-shader --anti-ringing "$anti_ringing_strength" $use_magpie $magpie_options | Out-File -Encoding ASCII "$file_name_ar"
@@ -77,12 +77,12 @@ function gen_ravu {
     }
 
     foreach($target in @('luma', 'rgb')) {
-        $suffix = "-$target"
+        $suffix = "_$target".ToUpper()
         if ($target -eq "luma") {
             $suffix = ""
         }
         foreach($radius in @(2, 3, 4)) {
-            $file_name = "ravu-3x-r$radius$suffix.hlsl"
+            $file_name = "RAVU_3x_R$radius$suffix.hlsl"
             $weights_file = "$DIR\weights\ravu-3x_weights-r$radius.py"
             python.exe "$DIR\ravu-3x.py" --target "$target" --weights-file "$weights_file" --float-format "$float_format" $use_magpie $magpie_options | Out-File -Encoding ASCII "$file_name"
             if ($ClangFormat) {
@@ -92,13 +92,13 @@ function gen_ravu {
     }
 
     foreach($target in @('luma', 'rgb')) {
-        $suffix = "-$target"
+        $suffix = "_$target".ToUpper()
         if ($target -eq "luma") {
             $suffix = ""
         }
         foreach($radius in @(2, 3)) {
-            $file_name = "ravu-zoom-r$radius$suffix.hlsl"
-            $file_name_ar = "ravu-zoom-ar-r$radius$suffix.hlsl"
+            $file_name = "RAVU_Zoom_R$radius$suffix.hlsl"
+            $file_name_ar = "RAVU_Zoom_AR_R$radius$suffix.hlsl"
             $weights_file = "$DIR\weights\ravu-zoom_weights-r$radius.py"
             python.exe "$DIR\ravu-zoom.py" --target "$target" --weights-file "$weights_file" --float-format "$float_format" --use-compute-shader $use_magpie $magpie_options | Out-File -Encoding ASCII "$file_name"
             python.exe "$DIR\ravu-zoom.py" --target "$target" --weights-file "$weights_file" --float-format "$float_format" --use-compute-shader --anti-ringing "$anti_ringing_strength" $use_magpie $magpie_options | Out-File -Encoding ASCII "$file_name_ar"
