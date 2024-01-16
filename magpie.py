@@ -153,51 +153,10 @@ class MagpieBase(userhook.UserHook):
     def hlsl_defines(self):
         return """$temp_textures
 //!COMMON
-// Conversion from GLSL to HLSL is done through defines as much as possible to ease synchronization and comparison with upstream
-#define ivec2 int2
-
-#define vec2 float2
-#define vec3 float3
-#define vec4 float4
-
-#define shared groupshared
-
-// TODO: check
-// some sources suggest that atan2 has reverse order of arguments compared to atan
-#define atan atan2
-#define fract frac
-#define intBitsToFloat asfloat
-#define inversesqrt rsqrt
-#define mix lerp
-
-// mod deals only with positive numbers here and it could be substituted by fmod
-#define mod fmod
-
-#define barrier GroupMemoryBarrierWithGroupSync
-#define texture(tex, pos) tex.SampleLevel(sam_##tex, pos, 0.0)
-
-// TODO: check
-// HLSL uses row-major matrixes, while GLSL uses column-major matrixes
-// Is this the proper way to deal with this difference?
-#define mat4x3 float4x3
-#define matrixCompMult(mtx1, mtx2) (mtx1 * mtx2)
-
-#define OUTPUT_pt float2(GetOutputPt())
-#define frag_pos(id) (vec2(id) + vec2(0.5, 0.5))
-#define frag_map(id) (OUTPUT_pt * frag_pos(id))
-
-#define gl_LocalInvocationIndex (threadId.y*MP_NUM_THREADS_X + threadId.x)
-#define gl_LocalInvocationID threadId
-#define gl_WorkGroupSize (uint2(MP_NUM_THREADS_X, MP_NUM_THREADS_Y))
-#define gl_WorkGroupID (blockStart / uint2(MP_BLOCK_WIDTH, MP_BLOCK_HEIGHT))
-#define gl_GlobalInvocationID (gl_WorkGroupID*gl_WorkGroupSize + threadId.xy)
+#include "prescalers.hlsli"
 
 #define LAST_PASS $last_pass
 
-// disable warning about unknown pragma
-#pragma warning(disable: 3568)
-// disable warning about too many threads (ravu-r4-rgb triggers it)
-#pragma warning(disable: 4714)
 """
 
     def reset(self):
@@ -246,19 +205,6 @@ class MagpieBase(userhook.UserHook):
             profile = Profile.luma
 
         if profile == Profile.luma:
-            # https://www.itu.int/dms_pubrec/itu-r/rec/bt/R-REC-BT.709-6-201506-I!!PDF-E.pdf
-            GLSL("static const float3 rgb2y = float3(0.2126, 0.7152, 0.0722);")
-            GLSL("""
-static const float2x3 rgb2uv = {
-    -0.2126/1.8556, -0.7152/1.8556,  0.9278/1.8556,
-     0.7874/1.5748, -0.7152/1.5748, -0.0722/1.5748
-};""")
-            GLSL("""
-static const float3x3 yuv2rgb = {
-    1,  0,         1.5748,
-    1, -0.187324, -0.468124,
-    1,  1.8556,    0
-};""")
             GLSL("#define GET_SAMPLE(x) dot(x.rgb, rgb2y)")
         else:
             GLSL("#define GET_SAMPLE(x) x")
@@ -296,8 +242,6 @@ void imageStoreOverride(uint2 pos, float4 value) {
 
     def texture_defines(self):
         GLSL = self.add_glsl
-
-        GLSL("#define HOOKED_map(id) frag_map(id)")
 
         GLSL("")
         self.setup_image_conversion()

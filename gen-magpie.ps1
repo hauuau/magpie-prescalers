@@ -18,6 +18,10 @@ if ($MPV) {
 
 
 function gen_nnedi3 {
+    if(!$MPV) {
+        Copy-Item "$DIR\prescalers.hlsli" "prescalers.hlsli"
+    }
+
     foreach($nns in @(16, 32, 64, 128, 256)) {
         foreach($win in @('8x4', '8x6')) {
             $file_name = "nnedi3-nns$nns-win$win.hlsl"
@@ -30,6 +34,10 @@ function gen_ravu {
     param (
         $float_format
     )
+
+    if (!$MPV) {
+        Copy-Item "$DIR\prescalers.hlsli" "prescalers.hlsli"
+    }
 
     foreach($target in @('luma', 'rgb')) {
         $suffix = "-$target"
