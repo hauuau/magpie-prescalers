@@ -1,5 +1,6 @@
 param (
-    [switch]$MPV
+    [switch]$MPV,
+    [switch]$ClangFormat
 )
 
 $DIR = $PSScriptRoot
@@ -16,6 +17,12 @@ if ($MPV) {
     $float_format = "float16gl"
 }
 
+if ($ClangFormat) {
+    if (!(Get-Command clang-format.exe -ea 0)) {
+        Write-Warning "clang-format.exe not found; Formatting turned off."
+        $ClangFormat = $false
+    }
+}
 
 function gen_nnedi3 {
     if(!$MPV) {
@@ -26,6 +33,9 @@ function gen_nnedi3 {
         foreach($win in @('8x4', '8x6')) {
             $file_name = "nnedi3-nns$nns-win$win.hlsl"
             python.exe "$DIR\nnedi3.py" --nns "$nns" --win "$win" --use-compute-shader $use_magpie | Out-File -Encoding ASCII "$file_name"
+            if ($ClangFormat) {
+                clang-format.exe --style="file:$DIR\.clang-format" -i "$file_name"
+            }
         }
     }
 }
@@ -48,6 +58,9 @@ function gen_ravu {
             $file_name = "ravu-r$radius$suffix.hlsl"
             $weights_file = "$DIR\weights\ravu_weights-r$radius.py"
             python.exe "$DIR\ravu.py" --target "$target" --weights-file "$weights_file" --float-format "$float_format" --use-compute-shader $use_magpie $magpie_options | Out-File -Encoding ASCII "$file_name"
+            if ($ClangFormat) {
+                clang-format.exe --style="file:$DIR\.clang-format" -i "$file_name"
+            }
         }
     }
 
@@ -57,6 +70,10 @@ function gen_ravu {
         $weights_file = "$DIR\weights\ravu-lite_weights-r$radius.py"
         python.exe "$DIR\ravu-lite.py" --weights-file "$weights_file" --float-format "$float_format" --use-compute-shader  $use_magpie $magpie_options | Out-File -Encoding ASCII "$file_name"
         python.exe "$DIR\ravu-lite.py" --weights-file "$weights_file" --float-format "$float_format" --use-compute-shader --anti-ringing "$anti_ringing_strength" $use_magpie $magpie_options | Out-File -Encoding ASCII "$file_name_ar"
+        if ($ClangFormat) {
+            clang-format.exe --style="file:$DIR\.clang-format" -i "$file_name"
+            clang-format.exe --style="file:$DIR\.clang-format" -i "$file_name_ar"
+        }
     }
 
     foreach($target in @('luma', 'rgb')) {
@@ -68,6 +85,9 @@ function gen_ravu {
             $file_name = "ravu-3x-r$radius$suffix.hlsl"
             $weights_file = "$DIR\weights\ravu-3x_weights-r$radius.py"
             python.exe "$DIR\ravu-3x.py" --target "$target" --weights-file "$weights_file" --float-format "$float_format" $use_magpie $magpie_options | Out-File -Encoding ASCII "$file_name"
+            if ($ClangFormat) {
+                clang-format.exe --style="file:$DIR\.clang-format" -i "$file_name"
+            }
         }
     }
 
@@ -82,6 +102,10 @@ function gen_ravu {
             $weights_file = "$DIR\weights\ravu-zoom_weights-r$radius.py"
             python.exe "$DIR\ravu-zoom.py" --target "$target" --weights-file "$weights_file" --float-format "$float_format" --use-compute-shader $use_magpie $magpie_options | Out-File -Encoding ASCII "$file_name"
             python.exe "$DIR\ravu-zoom.py" --target "$target" --weights-file "$weights_file" --float-format "$float_format" --use-compute-shader --anti-ringing "$anti_ringing_strength" $use_magpie $magpie_options | Out-File -Encoding ASCII "$file_name_ar"
+            if ($ClangFormat) {
+                clang-format.exe --style="file:$DIR\.clang-format" -i "$file_name"
+                clang-format.exe --style="file:$DIR\.clang-format" -i "$file_name_ar"
+            }
         }
     }
 }

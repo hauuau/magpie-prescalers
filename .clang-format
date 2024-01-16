@@ -1,0 +1,43 @@
+---
+Language:        Cpp
+BasedOnStyle:  Microsoft
+AlignArrayOfStructures: Right
+AlignOperands:   AlignAfterOperator
+AllowShortBlocksOnASingleLine: Empty
+AllowShortFunctionsOnASingleLine: All
+AllowShortIfStatementsOnASingleLine: WithoutElse
+AllowShortLoopsOnASingleLine: true
+BraceWrapping:
+  AfterCaseLabel:  false
+  AfterClass:      false
+  AfterControlStatement: Never
+  AfterEnum:       false
+  AfterExternBlock: false
+  AfterFunction:   false
+  AfterNamespace:  false
+  AfterObjCDeclaration: false
+  AfterStruct:     false
+  AfterUnion:      false
+  BeforeCatch:     false
+  BeforeElse:      false
+  BeforeLambdaBody: false
+  BeforeWhile:     false
+  IndentBraces:    false
+  SplitEmptyFunction: false
+  SplitEmptyRecord: false
+  SplitEmptyNamespace: false
+BreakAfterAttributes: Leave
+BreakArrays:     false
+BreakBeforeBinaryOperators: NonAssignment
+BreakBeforeBraces: Custom
+CommentPragmas:  '^!'
+ExperimentalAutoDetectBinPacking: true
+IndentWrappedFunctionNames: true
+InsertBraces:    true
+InsertNewlineAtEOF: true
+LineEnding:      LF
+ReflowComments:  false
+SortIncludes:    Never
+SpacesInContainerLiterals: false
+UseTab:          ForContinuationAndIndentation
+...
