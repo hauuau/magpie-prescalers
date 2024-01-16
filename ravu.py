@@ -606,8 +606,11 @@ class Magpie_RAVU(MagpieBase, RAVU, MagpieHook):
 
         shader  = gen.magpie_header()
         shader += gen.tex_headers("INPUT", filter="POINT")
-        shader += gen.tex_headers("OUTPUT", filter="POINT")
-        shader += gen.sampler_headers("INPUT_LINEAR", filter="LINEAR")
+        shader += gen.tex_headers("OUTPUT", filter=None)
+
+        if profile == Profile.luma:
+            shader += gen.sampler_headers("INPUT_LINEAR", filter="LINEAR")
+
         shader += gen.generate_tex(float_format, overwrite=args.overwrite)
         shader += gen.hlsl_defines()
         for step in list(Step):

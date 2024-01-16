@@ -397,7 +397,7 @@ class Magpie_NNEDI3(MagpieBase, NNEDI3, MagpieHook):
 
         shader  = gen.magpie_header()
         shader += gen.tex_headers("INPUT", filter="POINT")
-        shader += gen.tex_headers("OUTPUT", filter="POINT")
+        shader += gen.tex_headers("OUTPUT", filter=None)
         shader += gen.sampler_headers("INPUT_LINEAR", filter="LINEAR")
         shader += gen.hlsl_defines()
         for step in list(Step):

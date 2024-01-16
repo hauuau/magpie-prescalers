@@ -97,7 +97,9 @@ class MagpieBase(userhook.UserHook):
 
         headers += ["Texture2D %s;" % name    ]
         headers += [""]
-        headers += [self.sampler_headers(name, filter)]
+
+        if filter:
+            headers += [self.sampler_headers(name, filter).rstrip(), ""]
 
         self.registered_textures[name] = {
             'filename': filename,

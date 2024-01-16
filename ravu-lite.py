@@ -388,7 +388,7 @@ class Magpie_RAVU_Lite(MagpieBase, RAVU_Lite, MagpieHook):
 
         shader  = gen.magpie_header()
         shader += gen.tex_headers("INPUT", filter="POINT")
-        shader += gen.tex_headers("OUTPUT", filter="POINT")
+        shader += gen.tex_headers("OUTPUT", filter=None)
         shader += gen.sampler_headers("INPUT_LINEAR", filter="LINEAR")
         shader += gen.generate_tex(float_format, overwrite=args.overwrite)
         shader += gen.hlsl_defines()
