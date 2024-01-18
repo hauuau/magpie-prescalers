@@ -314,9 +314,11 @@ vsum += sum1*(sum2/(1.0+abs(sum2)));""")
                         (self.weightWS(n, s, 0), self.weightWS(n, s, 1)))
             GLSL("".join(line))
 
+        GLSL("")
         GLSL("""
 return clamp(mstd0 + 5.0 * vsum / wsum * mstd1, 0.0, 1.0);
-}  // nnedi3""")
+}""")
+        GLSL("")
 
         if use_compute:
             minx = min(key[0][i][0] for key in sampling_info for i in range(4))
