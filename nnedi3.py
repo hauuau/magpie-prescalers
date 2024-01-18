@@ -132,6 +132,10 @@ class NNEDI3(userhook.UserHook):
 
         GLSL("void hook() {")
 
+    # this must be noop on mpv
+    def add_hlsl(self, line):
+        pass
+
     def samples_loop(self, array_size, array_offset):
         GLSL = self.add_glsl
 
@@ -153,6 +157,7 @@ for (int id = int(gl_LocalInvocationIndex); id < %d; id += int(gl_WorkGroupSize.
         self.load_weights()
         self.reset()
         GLSL = self.add_glsl
+        HLSL = self.add_hlsl
 
         width = self.window_width
         height = self.window_height
@@ -268,8 +273,9 @@ vec4 hook() {
 float nnedi3(vec4 samples[%d]) {""" % sample_count)
 
 
+        GLSL("float sum = 0.0, sumsq = 0.0;")
+        HLSL("[unroll]")
         GLSL("""
-float sum = 0.0, sumsq = 0.0;
 for (int i = 0; i < %d; i++) {
     sum += dot(samples[i], vec4(1.0, 1.0, 1.0, 1.0));
     sumsq += dot(samples[i], samples[i]);
@@ -422,6 +428,9 @@ class Magpie_NNEDI3(MagpieBase, NNEDI3, MagpieHook):
         if self.step == Step.double_y:
             self.save_tex("temp")
             self.save_format("float")
+
+    def add_hlsl(self, line):
+        self.add_glsl(line)
 
     def samples_loop(self, array_size, array_offset):
         GLSL = self.add_glsl
