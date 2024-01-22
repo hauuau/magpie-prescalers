@@ -55,7 +55,7 @@ class MagpieBase(userhook.UserHook):
         self.registered_textures = {}
         self.out_textures = {}
 
-    def magpie_header(self):
+    def magpie_header(self, sortname=None):
         scriptpath = os.path.dirname(os.path.realpath(__file__))
 
         normalized_argv = [(os.path.relpath(x, scriptpath) if ('\\' in x or '/' in x) else x) for x in sys.argv]
@@ -71,9 +71,10 @@ class MagpieBase(userhook.UserHook):
         headers += [LICENSE_HEADER]
         headers += [
             "//!MAGPIE EFFECT",
-            "//!VERSION 4",
-            ""
+            "//!VERSION 4"
         ]
+        headers += ["//!SORT_NAME %s" % sortname] if sortname else []
+        headers += [""]
 
         return "\n".join(headers) + "\n"
 

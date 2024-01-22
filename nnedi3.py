@@ -403,7 +403,7 @@ class Magpie_NNEDI3(MagpieBase, NNEDI3, MagpieHook):
             max_downscaling_ratio=max_downscaling_ratio
         )
 
-        shader  = gen.magpie_header()
+        shader  = gen.magpie_header(sortname="NNEDI3_%03d_%d" % (neuron.get_neurons(), window.get_height()))
         shader += gen.tex_headers("INPUT", filter="POINT")
         shader += gen.tex_headers("OUTPUT", filter=None)
         shader += gen.sampler_headers("INPUT_LINEAR", filter="LINEAR")
