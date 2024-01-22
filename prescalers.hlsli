@@ -28,9 +28,19 @@
 #define fract frac
 #define intBitsToFloat asfloat
 #define inversesqrt rsqrt
-#define mix lerp
 // mod deals only with positive numbers here and it could be substituted by fmod
 #define mod fmod
+
+// lerp handles bools as the third argument differently from mix
+float mix(float a, float b, bool c) {
+	return c ? b : a;
+}
+
+#define MIX_LERP(type1, type3) type1 mix(type1 a, type1 b, type3 c) { return lerp(a, b, c); }
+MIX_LERP(float, float)
+MIX_LERP(float2, float2)
+MIX_LERP(float3, float)
+MIX_LERP(float4, float)
 
 #define texture(tex, pos) tex.SampleLevel(sam_##tex, pos, 0.0)
 
