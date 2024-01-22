@@ -284,7 +284,7 @@ for (int i = 0; i < %d; i++) {
         GLSL("""
 float mstd0 = sum / %d.0;
 float mstd1 = sumsq / %d.0 - mstd0 * mstd0;
-float mstd2 = mstd1 >= %s ? inversesqrt(mstd1) : 0.0;
+float mstd2 = mix(0.0, inversesqrt(mstd1), mstd1 >= %s);
 mstd1 *= mstd2;""" % (width * height, width * height, "1.192092896e-7"))
 
         GLSL("""
