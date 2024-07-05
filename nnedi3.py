@@ -452,7 +452,7 @@ for (int id = int(gl_LocalInvocationIndex); id < %d; id += int(gl_WorkGroupSize.
 
         GLSL("""
 #if CURRENT_PASS == LAST_PASS
-uint2 destPos = blockStart + threadId.xy * 2;
+uint2 destPos = blockStart + threadId.xy * $double_mul;
 uint2 outputSize = GetOutputSize();
 if (destPos.x >= outputSize.x || destPos.y >= outputSize.y) {
     return;
